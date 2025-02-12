@@ -1,1 +1,4 @@
 # Ai-Mental-Health-Chatbot
+
+
+api key: openai.api_key = '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'
