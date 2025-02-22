@@ -1,6 +1,7 @@
 import sqlite3 as sq
 from datetime import datetime as dt 
 
+#creates the database/ checks if there is one 
 def create_database(): 
     con = sq.connect("conversations.db") 
     cur = con.cursor() 
@@ -14,4 +15,9 @@ def create_database():
     '''
     cur.execute(table) #If the table doesn't exist this makes one  
     con.commit()
-    con.close()
+    con.close() 
+
+#This will work to insert user conversations
+def logger(): 
+    con = sq.connect("conversations.db") 
+    cur = con.cursor() 
