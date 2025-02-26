@@ -1,0 +1,215 @@
+:root {
+    --landing_page_background_color: #f5f4ee;
+    --wrapper_page_background_color: #fbf9ed;
+    --text_color: #0f0f0d;
+    --navbar_background_color: #fbf9ed;
+    --input_background_color: #444444;
+    --input_text_color: #000000;
+    --button_color: #0282c3;
+    --left--main-backgorund_color: #eae8df;
+    --svg_background_color: #28a745; /* Green background */
+    --svg_color: #ffffff; /* White color */
+}
+body {
+    background-color: var(--landing_page_background_color);
+    color: var(--text_color);
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+input {
+    background-color: var(--input_background_color);
+    color: var(--input_text_color);
+    border: none;
+    border-radius: 20px;
+    outline: none; /* Remove focus color */
+}
+button {
+    background-color: var(--svg_background_color);
+    color: var(--svg_color);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    padding: 10px 20px;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+button svg {
+    fill: var(--svg_color);
+}
+button:hover,
+button:active {
+    transform: scale(1.1); /* Expand on hover and click */
+}
+.wrapper {
+    max-width: 100%;
+    height: 100vh;
+    margin: auto;
+    position: relative;
+    padding: 5px;
+    transition: transform 0.3s ease;
+    overflow: hidden;
+    background-color: var(--wrapper_background_color);
+}
+.flex-container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background-color: var(--wrapper_page_background_color);
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    padding: 15px;
+    border-bottom: 1px solid #ccc; /* Horizontal line */
+}
+.left-main {
+    width: 20%;
+    height: 100%;
+    padding: 15px;
+    overflow: hidden;
+    background-color: var(--left--main-backgorund_color);    
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.right-main {
+    width: 80%;
+    height: 100%;
+    padding: 15px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* Add gap between content */
+}
+.right_main-chat-input {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-color: rgb(255, 255, 255);
+    border: 1px solid #ccc; /* Border line */
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 30px;;
+}
+.right_main-chat-input input {
+    flex: 1;
+    padding: 10px;
+    background-color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 10px;
+    margin-right: 10px;
+    outline: none; /* Remove focus color */
+}
+.right_main-chat-input button {
+    padding: 10px;
+    background-color: var(--svg_background_color);
+    color: var(--svg_color);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+.right_main-chat-input button svg {
+    fill: var(--svg_color);
+}
+.right_main-chat-input button:hover,
+.right_main-chat-input button:active {
+    transform: scale(1.1); /* Expand on hover and click */
+}
+.navbar {
+    width: 100%;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+.hamburger {
+    background-color: var(--svg_background_color);
+    color: var(--svg_color);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    padding: 10px;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1001;
+}
+.hamburger svg {
+    fill: var(--svg_color);
+}
+.hamburger:hover,
+.hamburger:active {
+    transform: scale(1.1); /* Expand on hover and click */
+}
+.chat-header {
+    /* Add styles for chat header if needed */
+}
+.chat-input {
+    display: flex;
+    align-items: center;
+    background-color: var(--input_background_color);
+    border-radius: 20px;
+    padding: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    background-color: var(--input_background_color);
+    color: var(--input_text_color);
+    margin-right: 10px;
+    font-size: 16px;
+    outline: none; /* Remove focus color */
+}
+.chat-input button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    background-color: var(--button_color);
+    color: var(--text_color);
+    cursor: pointer;
+}
+.chat-input button:hover {
+    background-color: var(--secondary_color);
+}
+.save_chat_container {
+    margin-top: 50px; /* Move down a little more */
+    padding-bottom: 10px;
+    align-items: center;
+    gap: 10px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto;
+    grid-template-areas: "input button";
+    font-weight: bold;
+    font-size: 16px;
+    font: 1em sans-serif;
+}
+.chat-container {
+    display: block;
+    width: 100%;
+    height: 50px;
+    overflow-y: auto;
+    background-color: var(--input_background_color);
+    color: white;
+    border-radius: 5px;
+    align-items: center;
+}
