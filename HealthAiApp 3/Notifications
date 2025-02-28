@@ -1,1 +1,38 @@
 
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Example</title>
+</head>
+<body>
+    <h1>Notification Permission</h1>
+    <button id="notifyBtn">Enable Notifications</button>
+
+    <script>
+        const notifyBtn = document.getElementById('notifyBtn');
+
+        notifyBtn.addEventListener('click', () => {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    startNotifications();
+                } else {
+                    alert('Notifications are blocked. Please enable them in your browser settings.');
+                }
+            });
+        });
+
+        function startNotifications() {
+            setInterval(() => {
+                const notification = new Notification('Positive Message', {
+                    body: 'You are doing great! Keep it up!',
+                    icon: 'https://via.placeholder.com/150' // Replace with your icon URL
+                });
+            }, 21600000); // 6 hours in milliseconds
+        }
+    </script>
+</body>
+</html>
+```
