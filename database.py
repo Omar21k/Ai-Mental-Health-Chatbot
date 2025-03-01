@@ -11,7 +11,7 @@ def create_database():
             user_id TEXT NOT NULL,
             date TEXT NOT NULL,
             user_messages TEXT NOT NULL, 
-            bot_messages TEXT NOT NULL
+            gpt_response  TEXT NOT NULL
         )
     '''
     cur.execute(table) #If the table doesn't exist this makes one  
@@ -19,13 +19,13 @@ def create_database():
     con.close() 
 
 #This will work to insert user conversations
-def logger(user_id, user_messages, bot_messages): 
+def logger(user_id, user_messages, gpt_response): 
     con = sq.connect("conversations.db") 
     cur = con.cursor() 
 
     date = dt.now().strftime("%Y-%m-%d %H:%M:%S") #sets the date of the message to when it was sent
-    cur.execute("INSERT INTO conversations (user_id, date, user_messages, bot_messages) VALUES (?,?,?,?)", 
-                   (user_id, date, user_messages, bot_messages)) 
+    cur.execute("INSERT INTO conversations (user_id, date, user_messages, gpt_response) VALUES (?,?,?,?)", 
+                   (user_id, date, user_messages, gpt_response)) #inserts the user id, date, user messages, and gpt response into the database
     #line 26-28 sets a group of messages (question + bot response) into the database with their time 
     con.commit()
     con.close()  
@@ -40,3 +40,14 @@ def grabber(user_id):
     
     con.close()
     return chats 
+
+create_database() 
+logger("123", "Hello, how are you?", "I am doing well, thank you for asking")
+con = sq.connect("conversations.db")
+cur = con.cursor()
+    
+cur.execute("SELECT * FROM conversations")
+rows = cur.fetchall() 
+
+for row in rows: 
+    print(row)
