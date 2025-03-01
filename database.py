@@ -38,16 +38,6 @@ def grabber(user_id):
     cur.execute("SELECT date, conversation FROM conversations WHERE user_id = ? ORDER BY date DESC", (user_id))
     chats = cur.fetchall()
     
-    con.close()
-    return chats 
-
-create_database() 
-logger("123", "Hello, how are you?", "I am doing well, thank you for asking")
-con = sq.connect("conversations.db")
-cur = con.cursor()
-    
-cur.execute("SELECT * FROM conversations")
-rows = cur.fetchall() 
-
-for row in rows: 
-    print(row)
+    con.close() 
+    history = "\n".join([f"{date}: {conversation}" for date, conversation in chats])
+    return history

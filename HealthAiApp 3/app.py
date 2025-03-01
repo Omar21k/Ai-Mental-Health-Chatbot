@@ -3,7 +3,7 @@ from openai import OpenAI
 from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_cors import CORS
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv 
 
 load_dotenv()
 
@@ -46,5 +46,5 @@ def chat():
     print(f"Sending response: {gpt_response}")
     return jsonify({"reply": gpt_response})
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
     app.run(host='0.0.0.0', port=5000, debug=True)
