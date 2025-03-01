@@ -24,7 +24,7 @@ def logger(user_id, user_messages, bot_messages):
     cur = con.cursor() 
 
     date = dt.now().strftime("%Y-%m-%d %H:%M:%S") #sets the date of the message to when it was sent
-    cursor.execute("INSERT INTO conversations (user_id, date, user_messages, bot_messages) VALUES (?,?,?,?)", 
+    cur.execute("INSERT INTO conversations (user_id, date, user_messages, bot_messages) VALUES (?,?,?,?)", 
                    (user_id, date, user_messages, bot_messages)) 
     #line 26-28 sets a group of messages (question + bot response) into the database with their time 
     con.commit()
@@ -39,4 +39,4 @@ def grabber(user_id):
     chats = cur.fetchall()
     
     con.close()
-    return chats
+    return chats 
