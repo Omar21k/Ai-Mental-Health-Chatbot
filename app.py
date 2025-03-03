@@ -26,15 +26,30 @@ def chat_with_gpt(prompt):
         print(f"Error with OpenAI: {e}")
         return None
 
+users = {
+    "john": "hello",
+    "susan": "bye"
+}
+
+@auth.verify_password
+def verify_password(username, password):
+    actual_password = users.get(username)
+    if actual_password == password: 
+        return username
+   
+
 @app.route("/")
+@auth.login_required
 def home_page():
     return render_template("main.html")
 
 @app.route('/static/<path:filename>')
+@auth.login_required
 def serve_static(filename):
     return send_from_directory('static', filename)
 
 @app.route('/chat', methods=['POST'])
+@auth.login_required
 def chat():
     print("We got here")
     data = request.get_json()
