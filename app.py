@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import database 
 
 database.create_database() 
-user_id = "1" #Replace with function to classify user
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -15,8 +15,35 @@ CORS(app)
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def chat_with_gpt(prompt):
+users = {
+    "samir": "rad",
+    "omar": "cool", 
+    "faraja":"awesome"
+}
+
+@auth.verify_password
+def verify_password(username, password):
+    actual_password = users.get(username) 
+    if username not in users: 
+        users[username] = password
+        return username
+    if actual_password == password: 
+        return username 
+    
+user_id = verify_password()
+
+def chat_with_gpt(user_id, user_message):
     try:
+        conversation_history = database.grabber(user_id)
+        prompt = f"""
+        You are a supportive mental health chatbot. Provide empathetic and caring responses. Your auidences age varies from teens to young adults. If a prompt is very vague please ask empathetic follow-up questions.
+        
+        Conversation History:
+        {conversation_history}
+
+        User: {user_message}
+        Bot:
+        """
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": prompt}]
@@ -26,17 +53,7 @@ def chat_with_gpt(prompt):
         print(f"Error with OpenAI: {e}")
         return None
 
-users = {
-    "john": "hello",
-    "susan": "bye"
-}
 
-@auth.verify_password
-def verify_password(username, password):
-    actual_password = users.get(username)
-    if actual_password == password: 
-        return username
-   
 
 @app.route("/")
 @auth.login_required
@@ -56,7 +73,7 @@ def chat():
     user_message = data.get('message', '')
     print(f"Received message: {user_message}")
     
-    gpt_response = chat_with_gpt(user_message)
+    gpt_response = chat_with_gpt(user_id, user_message)
     if gpt_response is None:
         return jsonify({"reply": f"Sorry, the AI service is currently unavailable. Please try again later or api key not working.{os.getenv('OPENAI_API_KEY')}"})
     
