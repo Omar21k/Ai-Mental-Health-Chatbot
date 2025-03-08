@@ -1,36 +1,50 @@
-
 from openai import OpenAI
-from flask import Flask, request, jsonify, send_from_directory, render_template
+from flask import Flask, request, jsonify, send_from_directory, render_template, session
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv 
 import database 
-
-database.create_database() 
+from flask_session import Session
 
 load_dotenv()
 
 app = Flask(__name__)
+
+#In .env file SECRET_KEY = acB99n75xt9jfnmeB2YY7t74Cvh9ZQGb
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
+database.create_database() 
+
+
 CORS(app)
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY")) 
 
-users = {
-    "samir": "rad",
-    "omar": "cool", 
-    "faraja":"awesome"
-}
 
-@auth.verify_password
-def verify_password(username, password):
-    actual_password = users.get(username) 
-    if username not in users: 
-        users[username] = password
-        return username
-    if actual_password == password: 
-        return username 
+@app.route("/register", methods=['POST'])
+def register_user():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get("password") 
+
+    result = database.register(username, password) 
+    return jsonify(result)
+
+@app.route('/login', methods=['POST'])
+def login(): 
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+
+    user_id = database.verify(username, password)
+    if user_id:
+        session["user_id"] = user_id 
+        return jsonify({"message": "Login successful", "user_id": user_id})
     
-user_id = verify_password()
+    return jsonify({"error": "Invalid username or password"}), 401
 
 def chat_with_gpt(user_id, user_message):
     try:
@@ -56,19 +70,18 @@ def chat_with_gpt(user_id, user_message):
 
 
 @app.route("/")
-@auth.login_required
 def home_page():
     return render_template("main.html")
 
 @app.route('/static/<path:filename>')
-@auth.login_required
 def serve_static(filename):
     return send_from_directory('static', filename)
 
 @app.route('/chat', methods=['POST'])
-@auth.login_required
 def chat():
-    print("We got here")
+    if "user_id" not in session:
+        return jsonify({"error": "User not authenticated"}), 401
+    user_id = session['user_id']
     data = request.get_json()
     user_message = data.get('message', '')
     print(f"Received message: {user_message}")

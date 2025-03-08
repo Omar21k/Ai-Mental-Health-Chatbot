@@ -20,7 +20,7 @@ def create_database():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
             date TEXT NOT NULL,
-            user_messages TEXT NOT NULL, 
+            user_message TEXT NOT NULL, 
             gpt_response  TEXT NOT NULL 
             FOREIGN KEY (user_id) REFERENCES users (user_id)
         )
@@ -30,13 +30,13 @@ def create_database():
     con.close() 
 
 #This will work to insert user conversations
-def logger(user_id, user_messages, gpt_response): 
+def logger(user_id, user_message, gpt_response): 
     con = sq.connect("conversations.db") 
     cur = con.cursor() 
 
     date = dt.now().strftime("%Y-%m-%d %H:%M:%S") #sets the date of the message to when it was sent
-    cur.execute("INSERT INTO conversations (user_id, date, user_messages, gpt_response) VALUES (?,?,?,?)", 
-                   (user_id, date, user_messages, gpt_response)) #inserts the user id, date, user messages, and gpt response into the database
+    cur.execute("INSERT INTO conversations (user_id, date, user_message, gpt_response) VALUES (?,?,?,?)", 
+                   (user_id, date, user_message, gpt_response)) #inserts the user id, date, user messages, and gpt response into the database
     #line 26-28 sets a group of messages (question + bot response) into the database with their time 
     con.commit()
     con.close()  
@@ -46,7 +46,7 @@ def grabber(user_id):
     con = sq.connect("conversations.db")
     cur = con.cursor()
     
-    cur.execute("SELECT date, user_messages, gpt_response FROM conversations WHERE user_id = ? ORDER BY date DESC", (user_id))
+    cur.execute("SELECT date, user_message, gpt_response FROM conversations WHERE user_id = ? ORDER BY date DESC", (user_id))
     chats = cur.fetchall()
     
     con.close() 
