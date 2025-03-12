@@ -22,7 +22,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 def chat_with_gpt(prompt, username=None, include_description=False):
     try:
         emotion = analyze_mood(prompt) if prompt else "neutral"
-        response = openai.ChatCompletion.create(  # Updated to use direct openai call
+        response = openai.chatcompletions.create(  # Updated to use direct openai call
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are an empathetic mental health support assistant."},
