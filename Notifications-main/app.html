@@ -1,0 +1,26 @@
+<script>
+    function showNotification(quote) {
+        if (Notification.permission === "granted") {
+            new Notification("HealthQuote Reminder", {
+                body: quote,
+                icon: "/path/to/icon.png" // Optional for branding
+            });
+        } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    new Notification("HealthQuote Reminder", { body: quote });
+                }
+            });
+        }
+    }
+
+    // Fetch quote from Flask API and trigger a notification
+    async function fetchQuote() {
+        const response = await fetch('/get_random_quote');
+        const data = await response.json();
+        showNotification(data.quote);
+    }
+
+    // Trigger notifications every 6 hours
+    setInterval(fetchQuote, 6 * 60 * 60 * 1000); // Every 6 hours
+</script>
