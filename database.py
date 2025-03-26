@@ -4,7 +4,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 def create_database(): 
     con = sq.connect("conversations.db") 
-    cur = con.cursor() 
+    cur = con.cursor('''
+        CREATE TABLE IF NOT EXISTS users (
+            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL, 
+            password  TEXT NOT NULL
+        )
+    ''') 
+    cur.excute()
     table = '''
         CREATE TABLE IF NOT EXISTS conversations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,33 +25,7 @@ def create_database():
     con.commit()
     con.close()
 
-def add_user_to_db(username, password):
-    con = sq.connect("conversations.db")
-    cur = con.cursor()
-    
-    try:
-        date = dt.now().strftime("%Y-%m-%d %H:%M:%S")
-        cur.execute("INSERT INTO users (username, password, created_at) VALUES (?,?,?)",
-                   (username, password, date))
-        con.commit()
-        return True
-    except sq.IntegrityError:
-        return False
-    finally:
-        con.close()
 
-def get_user(username):
-    con = sq.connect("conversations.db")
-    cur = con.cursor()
-    
-    try:
-        cur.execute("SELECT username, password FROM users WHERE username = ?", (username,))
-        user = cur.fetchone()
-        return user  
-        print(f"Database error: {e}")
-        return None
-    finally:
-        con.close()
 
 def logger(user_id, user_message, gpt_response): 
     con = sq.connect("conversations.db") 
@@ -57,15 +38,27 @@ def logger(user_id, user_message, gpt_response):
     con.close()  
 
 def grabber(user_id): 
-    con = sq.connect("conversations.db")
-    cur = con.cursor()
+    try:
+        con = sqlite3.connect("conversations.db")  
+        cur = conn.cursor()
+        
+        cur.execute("""
+            SELECT user_message, bot_response
+            FROM chat_history
+            WHERE user_id = ?
+            ORDER BY timestamp ASC
+            LIMIT 10  -- You can adjust the limit based on memory constraints
+        """, (user_id,))
+        
+        conversation = cur.fetchall()
+        con.close()
+        
+        # Format the results into a list of dictionaries
+        return [{"user_message": row[0], "bot_response": row[1]} for row in conversation]
     
-    cur.execute("SELECT date, user_message, gpt_response FROM conversations WHERE user_id = ? ORDER BY date DESC", (user_id))
-    chats = cur.fetchall()
-    
-    con.close() 
-    history = "\n".join([f"{date}: {conversation}" for date, conversation in chats])
-    return history
+    except Exception as e:
+        print(f"Database Error: {e}")
+        return []
 
 def register(username, password): 
     con = sq.connect("conversations.db")

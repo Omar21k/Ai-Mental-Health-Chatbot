@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory, render_template, redirect, url_for, session
 from flask_cors import CORS
-from flask_httpauth import HTTPBasicAuth
+from flask_session import session
 import os
 import ssl
 import nltk
@@ -16,12 +16,24 @@ database.create_database()
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-123')  
 CORS(app)
-auth = HTTPBasicAuth()
+Session(app)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def chat_with_gpt(prompt, username=None, include_description=False):
+def chat_with_gpt(user_message, username=None, include_description=False):
     try:
-        emotion = analyze_mood(prompt) if prompt else "neutral"
+        conversation_history = database.grabber(username)
+
+        prompt = f"""
+        You are a supportive mental health chatbot. Provide empathetic and caring responses.
+        If a prompt is vague, ask empathetic follow-up questions.
+
+        Conversation History:
+        {conversation_history}
+
+        User: {user_message}
+        Bot:
+        """
+        emotion = analyze_mood(user_message) if user_message else "neutral" 
         response = openai.chatcompletions.create(  # Updated to use direct openai call
             model="gpt-3.5-turbo",
             messages=[
@@ -34,14 +46,7 @@ def chat_with_gpt(prompt, username=None, include_description=False):
         print(f"Error with chat: {e}")
         return None
 
-users = {
-    "john": "hello",
-    "susan": "bye"
-}
 
-@auth.verify_password
-def verify_password(username, password):
-    return verify_user(username, password)
 
 @app.route("/")
 def home_page():
@@ -52,7 +57,7 @@ def login_page():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        if verify_user(username, password):
+        if database.verify(username, password):
             session['username'] = username
             return redirect(url_for('chat_page'))
         else:
@@ -65,7 +70,7 @@ def signup_page():
         username = request.form.get("username")
         password = request.form.get("password")
         
-        if database.add_user_to_db(username, password):
+        if database.register(username, password):
             return redirect(url_for('login_page'))
         return render_template("signupPage.html", error="Username already exists")
     
