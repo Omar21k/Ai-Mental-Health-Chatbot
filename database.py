@@ -4,14 +4,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 def create_database(): 
     con = sq.connect("conversations.db") 
-    cur = con.cursor('''
+    cur = con.cursor() 
+    cur.excute('''
         CREATE TABLE IF NOT EXISTS users (
             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL, 
+            username TEXT UNIQUE NOT NULL, 
             password  TEXT NOT NULL
         )
-    ''') 
-    cur.excute()
+    ''')
     table = '''
         CREATE TABLE IF NOT EXISTS conversations (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,24 +37,24 @@ def logger(user_id, user_message, gpt_response):
     con.commit()
     con.close()  
 
-def grabber(user_id): 
+def grabber(username): 
     try:
-        con = sqlite3.connect("conversations.db")  
+        con = sq.connect("conversations.db")  
         cur = conn.cursor()
         
         cur.execute("""
-            SELECT user_message, bot_response
-            FROM chat_history
-            WHERE user_id = ?
-            ORDER BY timestamp ASC
-            LIMIT 10  -- You can adjust the limit based on memory constraints
-        """, (user_id,))
+            SELECT user_message, gpt_response
+            FROM conversations
+            WHERE user_id = (SELECT user_id FROM users WHERE username = ?)
+            ORDER BY date DESC
+            LIMIT 15 
+        """, (username,)) #Used limit 15 cause might be a lot of text 
         
         conversation = cur.fetchall()
         con.close()
         
-        # Format the results into a list of dictionaries
-        return [{"user_message": row[0], "bot_response": row[1]} for row in conversation]
+        history = "\n".join([f"User: {user_msg}\nBot: {bot_resp}" for user_msg, bot_resp in conversation])
+        return history
     
     except Exception as e:
         print(f"Database Error: {e}")
@@ -67,20 +67,25 @@ def register(username, password):
     try:
         hashed_password = generate_password_hash(password)
         cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
-        conn.commit()
-        return {"success": True, "message": "User registered successfully"}
+        con.commit()
+        return {"success": True, "message": "User registered successfully"} 
+    except sq.IntegrityError:
+        return False
     finally:
-        conn.close() 
+        con.close() 
 
 def verify(username, password): 
     con = sq.connect("conversations.db")
     cur = con.cursor() 
-
-    cursor.execute("SELECT user_id, password FROM users WHERE username = ?", (username,))
-    user = cursor.fetchone()
-    conn.close()
     
-    if user and check_password_hash(user[1], password):
-        return user[0]  
-    return None
+    try:
+        cur.execute("SELECT user_id, password FROM users WHERE username = ?", (username,))
+        user = cur.fetchone()
+     
+    
+        if user and check_password_hash(user[1], password):
+            return user[0]  
+        return None 
+    finally: 
+        con.close()
     
