@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory, render_template, redirect, url_for, session
 from flask_cors import CORS
-from flask_session import session
+from flask_session import Session
 import os
 import ssl
 import nltk
@@ -16,7 +16,7 @@ database.create_database()
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-123')  
 CORS(app)
-session(app)
+Session(app)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def chat_with_gpt(user_message, username=None, include_description=False):
