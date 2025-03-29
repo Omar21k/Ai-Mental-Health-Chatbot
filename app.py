@@ -1,22 +1,19 @@
-from flask import Flask, request, jsonify, send_from_directory, render_template, redirect, url_for, session
+from flask import Flask, request, jsonify, send_from_directory, render_template, redirect, url_for, make_response
 from flask_cors import CORS
-from flask_session import session
 import os
 import ssl
 import nltk
 import openai
-from dotenv import load_dotenv 
-import database 
+from dotenv import load_dotenv
+import database
 from models.mood import analyze_mood, get_gpt_response
-from models.user import verify_user
-from models.chat import chat_manager  
+from models.chat import chat_manager
 
 load_dotenv()
-database.create_database() 
+database.create_database()
 app = Flask(__name__)
-app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-123')  
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-123')
 CORS(app)
-session(app)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def chat_with_gpt(user_message, username=None, include_description=False):
@@ -33,8 +30,8 @@ def chat_with_gpt(user_message, username=None, include_description=False):
         User: {user_message}
         Bot:
         """
-        emotion = analyze_mood(user_message) if user_message else "neutral" 
-        response = openai.chatcompletions.create(  # Updated to use direct openai call
+        emotion = analyze_mood(user_message) if user_message else "neutral"
+        response = openai.chatcompletions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are an empathetic mental health support assistant."},
@@ -46,8 +43,6 @@ def chat_with_gpt(user_message, username=None, include_description=False):
         print(f"Error with chat: {e}")
         return None
 
-
-
 @app.route("/")
 def home_page():
     return render_template('landing_page.html')
@@ -58,8 +53,9 @@ def login_page():
         username = request.form.get("username")
         password = request.form.get("password")
         if database.verify(username, password):
-            session['username'] = username
-            return redirect(url_for('chat_page'))
+            response = make_response(redirect(url_for('chat_page')))
+            response.set_cookie('username', username)  # Store username in a cookie
+            return response
         else:
             return render_template("loginPage.html", error="Invalid credentials")
     return render_template("loginPage.html")
@@ -78,13 +74,9 @@ def signup_page():
 
 @app.route('/chat')
 def chat_page():
-    username = session.get('username')
+    username = request.cookies.get('username', 'Guest')  # Retrieve username from cookie
     initial_response = "Hi! I'm here to listen and support you. How are you feeling today?"
     initial_quote = chat_manager.get_default_quote()
-    
-    # Allow access even without login: for isuse cuz something it doesn't work
-    if not username:
-        username = "Guest"
     
     return render_template("main.html", initial_response=initial_response, quote=initial_quote, username=username)
 
@@ -96,7 +88,7 @@ def serve_static(filename):
 def chat():
     data = request.get_json()
     user_message = data.get('message', '')
-    username = session.get('username', 'Guest')
+    username = request.cookies.get('username', 'Guest')  # Use cookies instead of session
     
     # Get emotion first
     emotion = analyze_mood(user_message)
@@ -106,7 +98,6 @@ def chat():
         error_message = "Sorry, the AI service is currently unavailable."
         return jsonify({"reply": error_message})
     
-   
     response_data = {
         "reply": gpt_response,
         "emotion": emotion  
@@ -126,7 +117,7 @@ def quote():
     user_message = data.get('message', '')
     print(f"Received message for quote: {user_message}")
     
-    # use the  mood file for quote reply
+    # use the mood file for quote reply
     mood = analyze_mood(user_message)
     quote_prompt = chat_manager.generate_quote_prompt(user_message, mood)
     

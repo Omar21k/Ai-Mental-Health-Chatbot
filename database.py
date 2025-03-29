@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 def create_database(): 
     con = sq.connect("conversations.db") 
     cur = con.cursor() 
-    cur.excute('''
+    cur.execute('''
         CREATE TABLE IF NOT EXISTS users (
             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL, 
