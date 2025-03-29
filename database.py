@@ -40,7 +40,7 @@ def logger(user_id, user_message, gpt_response):
 def grabber(username): 
     try:
         con = sq.connect("conversations.db")  
-        cur = conn.cursor()
+        cur = con.cursor()
         
         cur.execute("""
             SELECT user_message, gpt_response
@@ -66,7 +66,7 @@ def register(username, password):
     #Registers the user into our new users table 
     try:
         hashed_password = generate_password_hash(password)
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
+        cur.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_password))
         con.commit()
         return {"success": True, "message": "User registered successfully"} 
     except sq.IntegrityError:
