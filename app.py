@@ -16,7 +16,7 @@ database.create_database()
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-123')  
 CORS(app)
-Session(app)
+session(app)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def chat_with_gpt(user_message, username=None, include_description=False):
