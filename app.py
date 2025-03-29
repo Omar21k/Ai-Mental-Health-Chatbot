@@ -107,7 +107,8 @@ def chat():
         try:
             database.logger(username, user_message, gpt_response)
         except Exception as e:
-            print(f"Logging error: {e}")
+            print(f"Logging error: {e}") 
+    database.logger(username, user_message, gpt_response)
     
     return jsonify(response_data)
 
