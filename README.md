@@ -1,4 +1,4 @@
-# Ai-Mental-Health-Chatbot
+# AI-Mental-Health-Chatbot
 
 ## Setup
 
