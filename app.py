@@ -31,7 +31,7 @@ def chat_with_gpt(user_message, username=None, include_description=False):
         Bot:
         """
         emotion = analyze_mood(user_message) if user_message else "neutral"
-        response = openai.chatcompletions.create(
+        response = openai.Chatcompletions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are an empathetic mental health support assistant."},
