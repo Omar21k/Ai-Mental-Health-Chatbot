@@ -32,7 +32,7 @@ def logger(user_id, user_message, gpt_response):
     cur = con.cursor() 
 
     date = dt.now().strftime("%Y-%m-%d %H:%M:%S") #sets the date of the message to when it was sent
-    cur.execute("INSERT INTO conversations (user_id, date, user_message, gpt_response) VALUES (?,?,?,?)", 
+    cur.execute("INSERT INTO conversations (user_id, date, user_messages, gpt_response) VALUES (?,?,?,?)", 
                    (user_id, date, user_message, gpt_response)) #inserts the user id, date, user messages, and gpt response into the database
     con.commit()
     con.close()  
@@ -43,7 +43,7 @@ def grabber(username):
         cur = con.cursor()
         
         cur.execute("""
-            SELECT user_message, gpt_response
+           SELECT user_messages, gpt_response
             FROM conversations
             WHERE user_id = (SELECT user_id FROM users WHERE username = ?)
             ORDER BY date DESC
