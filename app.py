@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify, send_from_directory, render_template,
 from flask_cors import CORS
 import os
 import ssl
-import nltk
 import openai
 from dotenv import load_dotenv
 import database
