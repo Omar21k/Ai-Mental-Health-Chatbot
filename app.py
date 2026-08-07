@@ -87,29 +87,25 @@ def serve_static(filename):
 def chat():
     data = request.get_json()
     user_message = data.get('message', '')
-    username = request.cookies.get('username', 'Guest')  # Use cookies instead of session
-    
-    # Get emotion first
+    username = request.cookies.get('username', 'Guest')
+
     emotion = analyze_mood(user_message)
-    gpt_response = chat_with_gpt(user_message, username=username)
-    
+
+    if emotion == "No sadness":
+        gpt_response = chat_with_gpt(user_message, username=username)
+    else:
+        gpt_response = get_gpt_response(user_message, emotion)
+
     if gpt_response is None:
-        error_message = "Sorry, the AI service is currently unavailable."
-        return jsonify({"reply": error_message})
-    
-    response_data = {
-        "reply": gpt_response,
-        "emotion": emotion  
-    }
-    
+        return jsonify({"reply": "Sorry, the AI service is currently unavailable."})
+
     if username != 'Guest':
         try:
             database.logger(username, user_message, gpt_response)
         except Exception as e:
-            print(f"Logging error: {e}") 
-    database.logger(username, user_message, gpt_response)
-    
-    return jsonify(response_data)
+            print(f"Logging error: {e}")
+
+    return jsonify({"reply": gpt_response, "emotion": emotion})
 
 @app.route('/quote', methods=['POST'])
 def quote():
