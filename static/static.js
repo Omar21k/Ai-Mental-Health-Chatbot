@@ -98,7 +98,7 @@ async function sendMessage() {
                 console.log('Updating emoji for emotion:', data.emotion);
                 updateMoodEmoji(data.emotion);
             }
-            fetchQuote(userInput);
+            //fetchQuote(userInput);
         }
     } catch (error) {
         console.error("Error:", error);
