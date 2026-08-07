@@ -86,6 +86,7 @@ def classify_emotion(user_input):
     - Rejected (Unwanted, dismissed, and unworthy)
     - No sadness (if none of the above)
 
+    If the message is a greeting, small talk, or contains no real emotional content, always classify it as "No sadness."
     Only return the category name.
     """
     
