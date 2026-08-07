@@ -157,53 +157,50 @@ def analyze_mood(text):
     emotion, prompt = classify_emotion(text)
     return emotion
 
-def get_emotion_prompt(emotion, user_input):
-    """Generate appropriate prompt based on emotional state."""
+def get_emotion_prompt(emotion, user_input, quote_data):
     base_instructions = """
-    You are a supportive mental health AI assistant. Your responses should:
-    1. Show deep empathy and understanding
-    2. Validate their emotions
-    3. ALWAYS ask at least one relevant follow-up question
-    4. Keep responses conversational and warm
-    5. Provide gentle encouragement
-    6. Only include an inspirational quote if the user is expressing strong emotions or seeking motivation
-    7. When including a quote, format it as: <blockquote>quote text</blockquote>
-    8. Focus on active listening and understanding
-    9. Never give medical advice
-    10. Look for patterns in their responses to provide better support
-    
-    Important: Do not include quotes for casual greetings or simple questions.
-    Only include quotes when they would genuinely help the emotional situation.
+    You are a supportive mental health AI assistant. You have been given a real, 
+    attributed quote below. Your response must:
+    1. Open by presenting the quote exactly as given, formatted as: <blockquote>quote text — Author Name</blockquote>
+    2. Explain specifically how this quote relates to what the user just shared — be concrete, not generic
+    3. Offer genuine comfort and validation tied to their specific situation
+    4. End with one warm, relevant follow-up question
+    5. Never give medical advice
     """
-    
-    emotion_prompts = {
-        "Deep sadness": "The user is experiencing deep sadness or grief. First validate their pain, then offer gentle comfort and ask about their support system.",
-        "Frustration": "The user is frustrated. Acknowledge their feelings, help identify the source, and explore constructive ways to handle it.",
-        "Disappointment": "The user is disappointed. Show understanding, help reframe the situation, and ask about their hopes going forward.",
-        "Emptiness": "The user feels empty or disconnected. Help them explore these feelings and ask about what usually brings them joy or meaning.",
-        "Inadequacy": "The user feels inadequate. Validate their worth, highlight their strengths, and ask about their achievements.",
-        "Helplessness": "The user feels helpless. Break things down into smaller, manageable steps and ask about what they can control.",
-        "Fear": "The user is afraid. Create a safe space, validate their concerns, and explore the root of their fears.",
-        "Guilt": "The user feels guilty. Help them process without judgment and ask about self-forgiveness.",
-        "Loneliness": "The user feels lonely. Show they're not alone, and ask about potential connections in their life.",
-        "Overwhelmed": "The user is overwhelmed. Help them prioritize and ask about immediate pressure points.",
-        "Failure": "The user feels like a failure. Reframe setbacks as learning opportunities and ask about their goals.",
-        "Anger": "The user is angry. Validate their feelings while exploring healthy expression and ask about triggers.",
-        "General sadness": "The user is feeling down. Offer gentle support and ask about what might help lift their spirits.",
-        "Jealousy": "The user is feeling jealous. Explore these feelings without judgment and ask about their own journey.",
-        "Rejected": "The user feels rejected. Reinforce their inherent worth and ask about their support network.",
-        "No sadness": "Engage in supportive conversation and ask about their general wellbeing."
-    }
-    
-    specific_prompt = emotion_prompts.get(emotion, emotion_prompts["No sadness"])
-    return f"{base_instructions}\n\nContext: {specific_prompt}\n\nUser input: {user_input}\n\nProvide a response that includes:\n1. A relevant quote\n2. Empathetic understanding\n3. At least one thoughtful follow-up question"
+
+    emotion_context = {
+        "Deep sadness": "The user is experiencing deep sadness or grief.",
+        "Frustration": "The user is frustrated.",
+        "Disappointment": "The user is disappointed.",
+        "Emptiness": "The user feels empty or disconnected.",
+        "Inadequacy": "The user feels inadequate.",
+        "Helplessness": "The user feels helpless.",
+        "Fear": "The user is afraid.",
+        "Guilt": "The user feels guilty.",
+        "Loneliness": "The user feels lonely.",
+        "Overwhelmed": "The user is overwhelmed.",
+        "Faliure": "The user feels like a failure.",
+        "Anger": "The user is angry.",
+        "General sadness": "The user is feeling down.",
+        "Jealousy": "The user is feeling jealous.",
+        "Rejected": "The user feels rejected.",
+    }.get(emotion, "The user is going through something difficult.")
+
+    quote_text = f'"{quote_data["quote"]}" — {quote_data["author"]}' if quote_data else "No quote available."
+
+    return f"""{base_instructions}
+
+    Context: {emotion_context}
+    Quote to use: {quote_text}
+    User input: {user_input}
+    """
 
 def get_gpt_response(user_input, emotion):
-    """Get GPT response based on emotional state."""
-    prompt = get_emotion_prompt(emotion, user_input)
-    
+    quote_data = fetch_real_quote(emotion)
+    prompt = get_emotion_prompt(emotion, user_input, quote_data)
+
     try:
-        response = openai.ChatCompletion.create(  
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are an empathetic mental health support assistant."},
