@@ -1,6 +1,69 @@
 import openai
 from nltk.sentiment import SentimentIntensityAnalyzer
 
+import requests
+
+_TAG_CACHE = {"tags": None}
+
+def get_available_tags():
+    if _TAG_CACHE["tags"] is None:
+        try:
+            resp = requests.get("https://quoteslate.vercel.app/api/tags", timeout=5)
+            resp.raise_for_status()
+            _TAG_CACHE["tags"] = resp.json()
+        except Exception as e:
+            print(f"Error fetching QuoteSlate tags: {e}")
+            _TAG_CACHE["tags"] = []
+    return _TAG_CACHE["tags"]
+
+EMOTION_KEYWORDS = {
+    "Deep sadness": ["grief", "sad", "loss", "sorrow", "healing"],
+    "Frustration": ["frustration", "anger", "patience", "perseverance"],
+    "Disappointment": ["disappointment", "hope", "resilience"],
+    "Emptiness": ["purpose", "meaning", "life"],
+    "Inadequacy": ["confidence", "worth", "growth"],
+    "Helplessness": ["strength", "courage", "control"],
+    "Fear": ["fear", "courage", "bravery"],
+    "Guilt": ["forgiveness", "guilt", "growth"],
+    "Loneliness": ["loneliness", "friendship", "connection"],
+    "Overwhelmed": ["calm", "peace", "balance"],
+    "Faliure": ["failure", "success", "perseverance"],
+    "Anger": ["anger", "patience", "calm"],
+    "General sadness": ["sadness", "hope", "encouragement"],
+    "Jealousy": ["jealousy", "envy", "growth"],
+    "Rejected": ["rejection", "worth", "resilience"],
+}
+
+def find_matching_tags(emotion, available_tags):
+    if not available_tags:
+        return []
+    keywords = EMOTION_KEYWORDS.get(emotion, ["life"])
+    matched = []
+    for kw in keywords:
+        for tag in available_tags:
+            if kw in tag.lower() and tag not in matched:
+                matched.append(tag)
+    return matched[:3]
+
+def fetch_real_quote(emotion):
+    """Fetch a real, attributed quote from QuoteSlate matched to the emotion."""
+    tags = find_matching_tags(emotion, get_available_tags())
+    params = {"count": 1}
+    if tags:
+        params["tags"] = ",".join(tags)
+    try:
+        resp = requests.get("https://quoteslate.vercel.app/api/quotes/random", params=params, timeout=5)
+        if resp.status_code == 400:
+            resp = requests.get("https://quoteslate.vercel.app/api/quotes/random", params={"count": 1}, timeout=5)
+        resp.raise_for_status()
+        data = resp.json()
+        if isinstance(data, list):
+            data = data[0]
+        return {"quote": data["quote"], "author": data["author"]}
+    except Exception as e:
+        print(f"Error fetching quote: {e}")
+        return None
+
 def classify_emotion(user_input):
     """Use OpenAI to classify different shades of sadness."""
     classification_prompt = f"""
