@@ -159,16 +159,27 @@ def analyze_mood(text):
     return emotion
 
 def get_emotion_prompt(emotion, user_input, quote_data):
-    base_instructions = """
-    You are a supportive mental health AI assistant. You have been given a real, 
-    attributed quote below. Your response must:
+    if quote_data:
+        quote_instruction = """
     1. Open by presenting the quote exactly as given, formatted as: <blockquote>quote text — Author Name</blockquote>
     2. Explain specifically how this quote relates to what the user just shared — be concrete, not generic
     3. Offer genuine comfort and validation tied to their specific situation
     4. End with one warm, relevant follow-up question
     5. Never give medical advice
-    """
+        """
+        quote_text = f'"{quote_data["quote"]}" — {quote_data["author"]}'
+    else:
+        quote_instruction = """
+    1. Offer genuine comfort and validation tied to their specific situation
+    2. End with one warm, relevant follow-up question
+    3. Never give medical advice
+        """
+        quote_text = "None available — do not mention a quote or reference one."
 
+    base_instructions = f"""
+    You are a supportive mental health AI assistant. Your response must:
+    {quote_instruction}
+    """
     emotion_context = {
         "Deep sadness": "The user is experiencing deep sadness or grief.",
         "Frustration": "The user is frustrated.",
@@ -186,8 +197,6 @@ def get_emotion_prompt(emotion, user_input, quote_data):
         "Jealousy": "The user is feeling jealous.",
         "Rejected": "The user feels rejected.",
     }.get(emotion, "The user is going through something difficult.")
-
-    quote_text = f'"{quote_data["quote"]}" — {quote_data["author"]}' if quote_data else "No quote available."
 
     return f"""{base_instructions}
 
