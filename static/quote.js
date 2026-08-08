@@ -1,29 +1,40 @@
 document.addEventListener('DOMContentLoaded', function () {
     const quoteContainer = document.getElementById('quote');
-    const quotes = [
-        "The only way to do great work is to love what you do. - Steve Jobs",
-        "The best way to predict the future is to invent it. - Alan Kay",
-        "Life is 10% what happens to us and 90% how we react to it. - Charles R. Swindoll",
-        "Your time is limited, don't waste it living someone else's life. - Steve Jobs",
-        "The only limit to our realization of tomorrow is our doubts of today. - Franklin D. Roosevelt"
+    const FALLBACK_QUOTES = [
+        { quote: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+        { quote: "The best way to predict the future is to invent it.", author: "Alan Kay" },
+        { quote: "You are stronger than you know.", author: "Unknown" }
     ];
-
+    let quotes = FALLBACK_QUOTES;
     let currentQuoteIndex = 0;
     let hasStartedChat = false;
+
+    function renderQuote() {
+        const q = quotes[currentQuoteIndex];
+        quoteContainer.innerHTML = `<p class="quote-text">${q.quote} — ${q.author}</p>`;
+    }
 
     function displayNextQuote() {
         if (!hasStartedChat) {
             currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
-            quoteContainer.innerHTML = `<p class="quote-text">${quotes[currentQuoteIndex]}</p>`;
+            renderQuote();
         }
     }
 
+    renderQuote();
 
-    quoteContainer.innerHTML = `<p class="quote-text">${quotes[0]}</p>`;
+    fetch('https://quoteslate.vercel.app/api/quotes/random?count=15')
+        .then(response => response.json())
+        .then(data => {
+            if (Array.isArray(data) && data.length > 0) {
+                quotes = data;
+                currentQuoteIndex = 0;
+                renderQuote();
+            }
+        })
+        .catch(error => console.error('Error fetching quote batch:', error));
 
-    // Only start the quote rotation if no chat has occurred
     const quoteInterval = setInterval(displayNextQuote, 10000);
-
     window.startedChat = function() {
         hasStartedChat = true;
         clearInterval(quoteInterval);
