@@ -2,13 +2,14 @@ import openai
 from nltk.sentiment import SentimentIntensityAnalyzer
 
 import requests
+import random
 
 _TAG_CACHE = {"tags": None}
 
 def get_available_tags():
     if _TAG_CACHE["tags"] is None:
         try:
-            resp = requests.get("https://quoteslate.vercel.app/api/tags", timeout=5)
+            resp = requests.get("https://quoteslate.vercel.app/api/tags", timeout=8)
             resp.raise_for_status()
             _TAG_CACHE["tags"] = resp.json()
         except Exception as e:
@@ -34,6 +35,13 @@ EMOTION_KEYWORDS = {
     "Rejected": ["rejection", "worth", "resilience"],
 }
 
+FALLBACK_QUOTES = [
+    {"quote": "The only way out is through.", "author": "Robert Frost"},
+    {"quote": "You are stronger than you know.", "author": "Unknown"},
+    {"quote": "This too shall pass.", "author": "Persian Proverb"},
+    {"quote": "Every storm runs out of rain.", "author": "Maya Angelou"},
+]
+
 def find_matching_tags(emotion, available_tags):
     if not available_tags:
         return []
@@ -46,23 +54,31 @@ def find_matching_tags(emotion, available_tags):
     return matched[:3]
 
 def fetch_real_quote(emotion):
-    """Fetch a real, attributed quote from QuoteSlate matched to the emotion."""
+    """Fetch a real, attributed quote from QuoteSlate matched to the emotion.
+    Always returns something — falls back to local quotes if the API is unreachable
+    or rate-limited."""
     tags = find_matching_tags(emotion, get_available_tags())
-    params = {"count": 1}
-    if tags:
-        params["tags"] = ",".join(tags)
-    try:
-        resp = requests.get("https://quoteslate.vercel.app/api/quotes/random", params=params, timeout=5)
-        if resp.status_code == 400:
-            resp = requests.get("https://quoteslate.vercel.app/api/quotes/random", params={"count": 1}, timeout=5)
+
+    def _try_request(params):
+        resp = requests.get("https://quoteslate.vercel.app/api/quotes/random", params=params, timeout=8)
         resp.raise_for_status()
         data = resp.json()
         if isinstance(data, list):
             data = data[0]
         return {"quote": data["quote"], "author": data["author"]}
+
+    if tags:
+        try:
+            return _try_request({"count": 1, "tags": ",".join(tags)})
+        except Exception as e:
+            print(f"Tagged quote fetch failed: {e}")
+
+    try:
+        return _try_request({"count": 1})
     except Exception as e:
-        print(f"Error fetching quote: {e}")
-        return None
+        print(f"Untagged quote fetch failed: {e}")
+
+    return random.choice(FALLBACK_QUOTES)
 
 def classify_emotion(user_input):
     """Use OpenAI to classify different shades of sadness."""
@@ -100,41 +116,13 @@ def classify_emotion(user_input):
         )
         emotion = response.choices[0].message.content.strip()
         
-        
-        if emotion == "Deep sadness":
-            prompt = f"User is a teenager/young adult. The user is deeply sad and possibly grieving. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and A comforting and deeply empathetic conversatioal response."
-        elif emotion == "Frustration":
-            prompt = f"User is a teenager/young adult. The user is frustrated and upset. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and a calm response, validating their feelings, and offering constructive advice."
-        elif emotion == "Disappointment":
-            prompt = f"User is a teenager/young adult. The user is disappointed. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and Offer reassurance and help them see potential positives or ways to improve."
-        elif emotion == "Emptiness":
-            prompt = f"User is a teenager/young adult. The user feels empty, as if something is missing in their life or lacking purpose. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and respond with deep empathy and offer words that help them feel seen and understood."
-        elif emotion == "Inadequacy":
-            prompt = f"User is a teenager/young adult. The user feels inadequate, like they are not good enough. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and provide reassurance, remind them of their worth, and encourage them to see their strengths."
-        elif emotion == "Helplessness":
-            prompt = f"User is a teenager/young adult. The user feels helpless, like they have no control over their situation or is powerless. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and Offer gentle guidance, helping them find small steps they can take to regain a sense of control."
-        elif emotion == "Fear":
-            prompt = f"User is a teenager/young adult. The user feels afraid or anxious, like they're uncertain. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and Respond with reassurance, helping them feel safe and supported, and if possible, guide them through their fear logically."
-        elif emotion == "Guilt":
-            prompt = f"User is a teenager/young adult. The user is experiencing guilt, like they regret doing something or self-blaming themselves. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and offer comfort and help them reflect on their feelings without self-judgment, encouraging self-compassion and growth."
-        elif emotion == "Loneliness":
-            prompt = f"User is a teenager/young adult. The user feels lonely and isolated, like they're unseen. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and provide words of comfort, reminding them they are not alone and encouraging them to connect with others in meaningful ways."
-        elif emotion == "Overwhelmed":
-            prompt = f"User is a teenager/young adult. The user is feeling overwhelmed by their responsibilities or emotions, like they're mentally overloaded or feel suffocated. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and offer calming words and practical advice to help them regain clarity and take things one step at a time."
-        elif emotion == "Faliure":
-            prompt = f"User is a teenager/young adult. The user feels defeated, like they have failed and wasted their energy. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and provide encouragement, helping them reframe their experience as a learning opportunity rather than a final defeat."
-        elif emotion == "Anger":
-            prompt = f"User is a teenager/young adult. The user feels intense frustration or rage, like explosive outbursts or irritation. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and respond with a calming and validating message, helping them process their emotions in a constructive way."
-        elif emotion == "General sadness":
-            prompt = f"User is a teenager/young adult. The user is feeling generally sad. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and respond with gentle encouragement and support."
-        elif emotion == "Jealousy":
-            prompt = f"User is a teenager/young adult. The user is experiencing jealousy, like a desire with insecurity and envy. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and help them understand their emotions without judgment and encourage self-reflection and personal growth."
-        elif emotion == "Rejected":
-            prompt = f"User is a teenager/young adult. The user feels rejected and hurt, like they're unwanted or unworthy. Analyze the user's input and provide two things based on the user input: A quote suited for the situation based on the analysis and offer comforting words, reminding them of their value and helping them process their emotions in a healthy way."
-        elif emotion == "No sadness":
-            prompt = f"The user does not seem sad. Provide a normal, friendly response and engage them in positive conversation. User input: {user_input}"
-        else:
-            
+        valid_emotions = {
+            "Deep sadness", "Frustration", "Disappointment", "Emptiness", "Inadequacy",
+            "Helplessness", "Fear", "Guilt", "Loneliness", "Overwhelmed", "Faliure",
+            "Anger", "General sadness", "Jealousy", "Rejected", "No sadness"
+        }
+
+        if emotion not in valid_emotions:
             sia = SentimentIntensityAnalyzer()
             sentiment = sia.polarity_scores(user_input)
             if sentiment['compound'] <= -0.5:
@@ -145,18 +133,16 @@ def classify_emotion(user_input):
                 emotion = "Disappointment"
             else:
                 emotion = "No sadness"
-            prompt = f"The user seems to be feeling {emotion}. Provide an appropriate supportive response."
-            
-        return emotion, prompt
-        
+
+        return emotion
+
     except Exception as e:
         print(f"Error in emotion classification: {e}")
-        return "No sadness", "Provide a friendly and supportive response."
+        return "No sadness"
 
 def analyze_mood(text):
     """Get detailed emotion analysis."""
-    emotion, prompt = classify_emotion(text)
-    return emotion
+    return classify_emotion(text)
 
 def get_emotion_prompt(emotion, user_input, quote_data):
     if quote_data:
