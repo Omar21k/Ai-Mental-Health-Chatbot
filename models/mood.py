@@ -119,7 +119,9 @@ def classify_emotion(user_input):
             ]
         )
         emotion = response.choices[0].message.content.strip()
-        
+        word_count = len(user_input.split())
+        if word_count < 6 and emotion != "No sadness":
+            emotion = "No sadness"
         valid_emotions = {
             "Deep sadness", "Frustration", "Disappointment", "Emptiness", "Inadequacy",
             "Helplessness", "Fear", "Guilt", "Loneliness", "Overwhelmed", "Faliure",
