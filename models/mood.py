@@ -103,6 +103,10 @@ def classify_emotion(user_input):
     - No sadness (if none of the above)
 
     If the message is a greeting, small talk, or contains no real emotional content, always classify it as "No sadness."
+    Be conservative: only choose a specific emotion category if the message expresses a clear, 
+    substantial feeling or situation. Brief, mild, or ambiguous statements (e.g., "I'm a bit tired", 
+    "not bad I guess", "long day") should be classified as "No sadness" — these need a 
+    supportive follow-up question first, not a full emotional response.                                                                               
     Only return the category name.
     """
     
