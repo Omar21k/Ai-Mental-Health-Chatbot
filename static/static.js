@@ -3,9 +3,12 @@ function displayMessage(message, sender) {
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message');
     messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
-    messageDiv.textContent = message;
+    if (sender === 'user') {
+        messageDiv.textContent = message;
+    } else {
+        messageDiv.innerHTML = message;
+    }
     chatContainer.appendChild(messageDiv);
-    
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
