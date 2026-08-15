@@ -128,7 +128,10 @@ def classify_emotion(user_input, history_text=""):
         )
         emotion = response.choices[0].message.content.strip()
         word_count = len(user_input.split())
-        if word_count < 6 and emotion != "No sadness" and not history_text:
+        continuation_keywords = ["advice", "help", "what should i do", "any tips",
+                                  "how do i", "any suggestions", "what do you think", "should i"]
+        is_continuation_request = any(kw in user_input.lower() for kw in continuation_keywords)
+        if word_count < 6 and emotion != "No sadness" and not (history_text and is_continuation_request):
             emotion = "No sadness"
         valid_emotions = {
             "Deep sadness", "Frustration", "Disappointment", "Emptiness", "Inadequacy",
