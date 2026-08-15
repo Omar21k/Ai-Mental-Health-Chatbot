@@ -1,3 +1,5 @@
+let conversationHistory = [];
+
 function displayMessage(message, sender) {
     const chatContainer = document.getElementById('chat-container');
     const messageDiv = document.createElement('div');
@@ -50,7 +52,6 @@ const emotionEmojis = {
     "No sadness": "😊"
 };
 
-// Function to update emoji with animation
 function updateMoodEmoji(emotion) {
     const emojiElement = document.getElementById('mood-emoji');
     const newEmoji = emotionEmojis[emotion] || "😊";
@@ -74,40 +75,38 @@ function updateMoodEmoji(emotion) {
 async function sendMessage() {
     const userInput = document.getElementById("user-input").value;
     if (userInput.trim() === "") return;
-
     displayMessage(userInput, 'user');
-
     try {
         const response = await fetch("/chat", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ message: userInput }),
+            body: JSON.stringify({ message: userInput, history: conversationHistory }),
         });
-
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
-
         const data = await response.json();
         console.log('Received response with emotion:', data.emotion);
-
         if (data.error) {
             displayMessage("Sorry, I encountered an error. Please try again.", 'bot');
         } else {
             displayMessage(data.reply, 'bot');
+            conversationHistory.push({ role: 'user', content: userInput });
+            conversationHistory.push({ role: 'bot', content: data.reply });
+            if (conversationHistory.length > 20) {
+                conversationHistory = conversationHistory.slice(-20);
+            }
             if (data.emotion) {
                 console.log('Updating emoji for emotion:', data.emotion);
                 updateMoodEmoji(data.emotion);
             }
-            //fetchQuote(userInput);
         }
     } catch (error) {
         console.error("Error:", error);
         displayMessage("Sorry, I encountered an error. Please try again.", 'bot');
     }
-
     document.getElementById("user-input").value = "";
 }
 
