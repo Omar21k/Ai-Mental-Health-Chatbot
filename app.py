@@ -15,21 +15,18 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-123')
 CORS(app)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def chat_with_gpt(user_message, username=None, include_description=False):
+def chat_with_gpt(user_message, history_text=""):
     try:
-        conversation_history = database.grabber(username)
-
         prompt = f"""
         You are a supportive mental health chatbot. Provide empathetic and caring responses.
         If a prompt is vague, ask empathetic follow-up questions.
 
         Conversation History:
-        {conversation_history}
+        {history_text}
 
         User: {user_message}
         Bot:
         """
-        emotion = analyze_mood(user_message) if user_message else "neutral"
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -87,14 +84,17 @@ def serve_static(filename):
 def chat():
     data = request.get_json()
     user_message = data.get('message', '')
+    history = data.get('history', [])
     username = request.cookies.get('username', 'Guest')
 
-    emotion = analyze_mood(user_message)
+    history_text = "\n".join([f"{turn['role'].capitalize()}: {turn['content']}" for turn in history])
+
+    emotion = analyze_mood(user_message, history_text)
 
     if emotion == "No sadness":
-        gpt_response = chat_with_gpt(user_message, username=username)
+        gpt_response = chat_with_gpt(user_message, history_text)
     else:
-        gpt_response = get_gpt_response(user_message, emotion)
+        gpt_response = get_gpt_response(user_message, emotion, history_text)
 
     if gpt_response is None:
         return jsonify({"reply": "Sorry, the AI service is currently unavailable."})
