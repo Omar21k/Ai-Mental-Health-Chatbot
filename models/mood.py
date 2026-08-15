@@ -80,11 +80,16 @@ def fetch_real_quote(emotion):
 
     return random.choice(FALLBACK_QUOTES)
 
-def classify_emotion(user_input):
+def classify_emotion(user_input, history_text=""):
     """Use OpenAI to classify different shades of sadness."""
     classification_prompt = f"""
-    The user provided this message: "{user_input}"
-    Classify the emotional state of the user into one of the following categories: 
+    Conversation so far:
+    {history_text}
+
+    The user's latest message: "{user_input}"
+
+    Classify the emotional state of the user's LATEST message, using the conversation 
+    so far for context, into one of the following categories:
     - Deep sadness (grief, sorrow)
     - Frustration (anger mixed with sadness)
     - Disappointment (mild sadness due to unmet expectations)
@@ -106,7 +111,10 @@ def classify_emotion(user_input):
     Be conservative: only choose a specific emotion category if the message expresses a clear, 
     substantial feeling or situation. Brief, mild, or ambiguous statements (e.g., "I'm a bit tired", 
     "not bad I guess", "long day") should be classified as "No sadness" — these need a 
-    supportive follow-up question first, not a full emotional response.                                                                               
+    supportive follow-up question first, not a full emotional response.
+    If the conversation history shows this topic has already been discussed and the user is now 
+    asking a follow-up question or requesting advice, still classify based on their underlying 
+    emotional state, not "No sadness" just because it's a follow-up.
     Only return the category name.
     """
     
@@ -120,7 +128,7 @@ def classify_emotion(user_input):
         )
         emotion = response.choices[0].message.content.strip()
         word_count = len(user_input.split())
-        if word_count < 6 and emotion != "No sadness":
+        if word_count < 6 and emotion != "No sadness" and not history_text:
             emotion = "No sadness"
         valid_emotions = {
             "Deep sadness", "Frustration", "Disappointment", "Emptiness", "Inadequacy",
@@ -146,12 +154,14 @@ def classify_emotion(user_input):
         print(f"Error in emotion classification: {e}")
         return "No sadness"
 
-def analyze_mood(text):
+def analyze_mood(text, history_text=""):
     """Get detailed emotion analysis."""
-    return classify_emotion(text)
+    return classify_emotion(text, history_text)
 
-def get_emotion_prompt(emotion, user_input, quote_data):
-    if quote_data:
+def get_emotion_prompt(emotion, user_input, quote_data, history_text=""):
+    already_quoted = "<blockquote>" in history_text
+
+    if quote_data and not already_quoted:
         quote_instruction = """
     1. Open by presenting the quote exactly as given, formatted as: <blockquote>quote text — Author Name</blockquote>
     2. Explain specifically how this quote relates to what the user just shared — be concrete, not generic
@@ -162,14 +172,16 @@ def get_emotion_prompt(emotion, user_input, quote_data):
         quote_text = f'"{quote_data["quote"]}" — {quote_data["author"]}'
     else:
         quote_instruction = """
-    1. Offer genuine comfort and validation tied to their specific situation
-    2. End with one warm, relevant follow-up question
-    3. Never give medical advice
+    1. Do NOT include a quote or ask "tell me more" if the conversation history shows this topic 
+       has already been discussed — instead, directly engage with what the user is asking now
+    2. If the user is asking for advice, give genuine, concrete, practical suggestions
+    3. Offer continued comfort and validation tied to their specific situation
+    4. Never give medical advice
         """
-        quote_text = "None available — do not mention a quote or reference one."
+        quote_text = "None — do not mention a quote."
 
     base_instructions = f"""
-    You are a supportive mental health AI assistant. Your response must:
+    You are a supportive mental health AI assistant having an ongoing conversation. Your response must:
     {quote_instruction}
     """
     emotion_context = {
@@ -194,12 +206,16 @@ def get_emotion_prompt(emotion, user_input, quote_data):
 
     Context: {emotion_context}
     Quote to use: {quote_text}
-    User input: {user_input}
+    Conversation so far:
+    {history_text}
+
+    User's latest message: {user_input}
     """
 
-def get_gpt_response(user_input, emotion):
-    quote_data = fetch_real_quote(emotion)
-    prompt = get_emotion_prompt(emotion, user_input, quote_data)
+def get_gpt_response(user_input, emotion, history_text=""):
+    already_quoted = "<blockquote>" in history_text
+    quote_data = None if already_quoted else fetch_real_quote(emotion)
+    prompt = get_emotion_prompt(emotion, user_input, quote_data, history_text)
 
     try:
         response = openai.ChatCompletion.create(
