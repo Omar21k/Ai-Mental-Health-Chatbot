@@ -4,7 +4,7 @@ HealthQuote is a full-stack AI-powered mental health chatbot designed to provide
 
 The application analyzes the emotional context of a user's message, generates a conversational response using the OpenAI API, and connects the user with a relevant quote through an external quote service. HealthQuote also supports user accounts and conversation history so users can return to previous conversations.
 
-🌐 **Live Application:** [HealthQuote](www.healthquote.com)
+🌐 **Live Application:** [HealthQuote]([www.healthquote.com](https://healthquote.life/))
 
 ---
 
