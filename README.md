@@ -1,4 +1,4 @@
-# HealthQuote <img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/3bd1ac97-9dfc-41fa-a335-854de6c83919" />
+# HealthQuote <img width="50" height="50" alt="image" src="https://github.com/user-attachments/assets/3bd1ac97-9dfc-41fa-a335-854de6c83919" />
 
 
 HealthQuote is a full-stack AI-powered mental health chatbot designed to provide users with supportive, context-aware conversations and personalized quotes based on their situation.
