@@ -84,7 +84,6 @@ The chatbot returns the AI-generated response along with the selected quote and 
 
 7. Conversation History
 
-For authenticated users, conversations are stored and can be retrieved across sessions.
 Tech Stack
 Frontend
 HTML
