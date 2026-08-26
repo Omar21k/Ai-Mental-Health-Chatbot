@@ -1,48 +1,58 @@
-# AI-Mental-Health-Chatbot
+# HealthQuote 🧠
 
-## Setup
+HealthQuote is a full-stack AI-powered mental health chatbot designed to provide users with supportive, context-aware conversations and personalized quotes based on their situation.
 
-1. Clone the repository:
+The application analyzes the emotional context of a user's message, generates a conversational response using the OpenAI API, and connects the user with a relevant quote through an external quote service. HealthQuote also supports user accounts and conversation history so users can return to previous conversations.
 
-    ```sh
-    git clone https://github.com/yourusername/Health_Ai_App.git
-    cd Health_Ai_App
-    ```
+🌐 **Live Application:** [HealthQuote](healthquote.life)
 
-2. Create and activate a virtual environment:
+---
 
-    ```sh
-    python -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-    ```
+## Features
 
-3. Install the dependencies:
+- 🤖 **AI-Powered Chatbot**  
+  Uses the OpenAI API to generate context-aware conversational responses.
 
-    ```sh
-    pip install -r requirements.txt
-    ```
+- 🧠 **Emotion Classification**  
+  Uses NLTK to classify the emotional context of user messages and help tailor responses.
 
-4. Create a `.env` file in the root directory and add your OpenAI API key:
+- 💬 **Personalized Quotes**  
+  Connects to an external quote service to provide quotes relevant to the user's situation.
 
-    ```plaintext
-    OPENAI_API_KEY=your_openai_api_key
-    ```
+- 📖 **Quote Explanations**  
+  Explains how the selected quote relates to the user's situation rather than simply displaying a quote.
 
-5. Run the Flask application:
+- 🔐 **User Authentication**  
+  Allows users to create accounts and securely access their conversations.
 
-    ```sh
-    python app.py
-    ```
+- 📝 **Conversation History**  
+  Stores conversation data and allows users to retrieve previous conversations across sessions.
 
-6. Open your browser and go to `http://127.0.0.1:5000/` to see the application.
+- 🗣️ **"Be Brutally Honest" Mode**  
+  Gives users the option to request a more direct style of response.
 
-## Usage
+- 🌐 **Live Deployment**  
+  Deployed as a live web application using Render.
 
-- Type a message in the input field and press Enter or click the send button to interact with the chatbot.
+---
 
-## License
+## How It Works
 
-This project is licensed under the MIT License.
+The general flow of HealthQuote is:
 
-## API Keys
-
+```text
+User
+  ↓
+Frontend
+  ↓
+Flask Backend
+  ↓
+Emotion Classification (NLTK)
+  ↓
+OpenAI API
+  ↓
+Quote Service
+  ↓
+Context-Aware Response + Relevant Quote
+  ↓
+Conversation History
