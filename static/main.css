@@ -359,6 +359,15 @@ button:active {
     font-size: 1.2rem;
     font-weight: 500;
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-logo {
+    height: 36px;
+    width: auto;
+    display: block;
 }
 
 .nav-links {
