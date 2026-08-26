@@ -55,6 +55,7 @@ Quote Service
 Context-Aware Response + Relevant Quote
   ↓
 Conversation History
+ ```
 
 
 1. User Input
