@@ -92,15 +92,15 @@ async function sendMessage() {
         if (data.error) {
             displayMessage("Sorry, I encountered an error. Please try again.", 'bot');
         } else {
-            displayMessage(data.reply, 'bot');
+            if (data.emotion) {
+                console.log('Updating emoji for emotion:', data.emotion);
+                updateMoodEmoji(data.emotion);
+            }
+            await displayBotReplyInBubbles(data.reply);
             conversationHistory.push({ role: 'user', content: userInput });
             conversationHistory.push({ role: 'bot', content: data.reply });
             if (conversationHistory.length > 20) {
                 conversationHistory = conversationHistory.slice(-20);
-            }
-            if (data.emotion) {
-                console.log('Updating emoji for emotion:', data.emotion);
-                updateMoodEmoji(data.emotion);
             }
         }
     } catch (error) {
