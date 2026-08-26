@@ -85,3 +85,62 @@ The chatbot returns the AI-generated response along with the selected quote and 
 7. Conversation History
 
 For authenticated users, conversations are stored and can be retrieved across sessions.
+Tech Stack
+Frontend
+HTML
+CSS
+JavaScript
+Backend
+Python
+Flask
+AI & Natural Language Processing
+OpenAI API
+NLTK
+Database & Authentication
+User authentication
+Session management
+Database persistence
+Conversation history
+External Services
+OpenAI API
+External quote service
+Deployment
+Render (PaaS)
+Development Tools
+Git
+GitHub
+Architecture
+
+HealthQuote follows a full-stack frontend/backend architecture.
+
+Frontend
+
+The frontend provides the user interface for:
+
+User authentication
+Sending messages
+Viewing chatbot responses
+Viewing conversation history
+Interacting with chatbot settings
+Backend
+
+The Flask backend is responsible for:
+
+User authentication
+Session management
+Processing user messages
+Emotion classification
+Communication with external APIs
+Database operations
+Conversation history retrieval
+AI/NLP Pipeline
+
+HealthQuote combines NLP-based emotion classification with generative AI.
+
+A user submits a message.
+The backend processes the request.
+NLTK analyzes the emotional context of the message.
+The application uses the conversation context when communicating with the OpenAI API.
+A relevant quote is retrieved through an external quote service.
+HealthQuote returns the conversational response, quote, and explanation.
+The conversation is stored for future retrieval.
