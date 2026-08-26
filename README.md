@@ -68,15 +68,15 @@ The request is sent to the Flask backend, which handles the application logic an
 
 3. Emotion Classification
 
-NLTK analyzes the user's message to identify its emotional context.
+NLTK Python Library analyzes the user's message to identify its emotional context and classify his emotion.
 
 4. AI Response
 
-The backend sends the relevant conversation context to the OpenAI API to generate a conversational response.
+The backend sends the relevant conversation context to the OpenAI API to generate a conversational response, it will ask follow up questions if user message is a bit vage.
 
 5. Quote Recommendation
 
-HealthQuote connects to an external quote service to retrieve a quote relevant to the user's situation.
+Once the OpenAI API is able to classify user's emotion and grasp a hold how the user feeling it responds with not just "a" quote but THE quote tailored to user's situation.
 
 6. Personalized Response
 
