@@ -10,28 +10,26 @@ The application analyzes the emotional context of a user's message, generates a 
 
 ## Features
 
-- 🤖 **AI-Powered Chatbot**  
+-  **AI-Powered Chatbot**  
   Uses the OpenAI API to generate context-aware conversational responses.
 
-- 🧠 **Emotion Classification**  
+-  **Emotion Classification**  
   Uses NLTK to classify the emotional context of user messages and help tailor responses.
 
-- 💬 **Personalized Quotes**  
-  Connects to an external quote service to provide quotes relevant to the user's situation.
+-  **Personalized Quotes**  
+  Connects to an external quote service to provide not just "a" quote but THE tailored exactly to the user's situation.
 
-- 📖 **Quote Explanations**  
+-  **Quote Explanations**  
   Explains how the selected quote relates to the user's situation rather than simply displaying a quote.
 
-- 🔐 **User Authentication**  
+-  **User Authentication**  
   Allows users to create accounts and securely access their conversations.
 
-- 📝 **Conversation History**  
+-  **Conversation History**  
   Stores conversation data and allows users to retrieve previous conversations across sessions.
 
-- 🗣️ **"Be Brutally Honest" Mode**  
-  Gives users the option to request a more direct style of response.
 
-- 🌐 **Live Deployment**  
+-  **Live Deployment**  
   Deployed as a live web application using Render.
 
 ---
