@@ -96,23 +96,25 @@ The chatbot returns the AI-generated response along with the selected quote and 
 
 - Python
 - Flask
+- SQL
+- SQLite
 
 ### AI & Natural Language Processing
 
 - OpenAI API
 - NLTK
 
-### Database & Authentication
+### Authentication & Data
 
 - User authentication
 - Session management
-- Database persistence
 - Conversation history
+- SQLite database
 
 ### External Services
 
 - OpenAI API
-- External quote service
+- Quote service
 
 ### Deployment
 
