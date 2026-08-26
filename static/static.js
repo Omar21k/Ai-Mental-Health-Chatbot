@@ -72,6 +72,29 @@ function updateMoodEmoji(emotion) {
     });
 }
 
+function showTypingIndicator() {
+    const chatContainer = document.getElementById('chat-container');
+    const typingDiv = document.createElement('div');
+    typingDiv.classList.add('message', 'bot-message', 'typing-indicator');
+    typingDiv.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+    chatContainer.appendChild(typingDiv);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+    return typingDiv;
+}
+
+async function displayBotReplyInBubbles(fullReply) {
+    const chunks = fullReply.split('|||').map(c => c.trim()).filter(c => c.length > 0);
+
+    for (const chunk of chunks) {
+        const typingDiv = showTypingIndicator();
+        const thinkTime = Math.min(Math.max(chunk.length * 25, 600), 1800);
+        await new Promise(resolve => setTimeout(resolve, thinkTime));
+        typingDiv.remove();
+        displayMessage(chunk, 'bot');
+        await new Promise(resolve => setTimeout(resolve, 300));
+    }
+}
+
 async function sendMessage() {
     const userInput = document.getElementById("user-input").value;
     if (userInput.trim() === "") return;
