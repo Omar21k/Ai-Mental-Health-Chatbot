@@ -356,8 +356,9 @@ button:active {
 
 .nav-brand {
     color: rgb(0, 0, 0);
-    font-size: 1.2rem;
-    font-weight: 500;
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
     text-decoration: none;
     display: flex;
     align-items: center;
@@ -365,7 +366,7 @@ button:active {
 }
 
 .nav-logo {
-    height: 36px;
+    height: 40px;
     width: auto;
     display: block;
 }
