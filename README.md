@@ -114,7 +114,7 @@ The chatbot returns the AI-generated response along with the selected quote and 
 ### External Services
 
 - OpenAI API
-- Quote service
+- QuoteSlate
 
 ### Deployment
 
