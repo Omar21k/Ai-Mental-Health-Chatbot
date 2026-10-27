@@ -1,6 +1,6 @@
 import openai
 from nltk.sentiment import SentimentIntensityAnalyzer
-
+import os
 import requests
 import random
 
@@ -120,7 +120,7 @@ def classify_emotion(user_input, history_text=""):
     
     try:
         response = openai.ChatCompletion.create(  
-            model="gpt-3.5-turbo",
+            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
             messages=[
                 {"role": "system", "content": "You are an emotion detection assistant."},
                 {"role": "user", "content": classification_prompt}
@@ -222,7 +222,7 @@ def get_gpt_response(user_input, emotion, history_text=""):
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
             messages=[
                 {"role": "system", "content": "You are an empathetic mental health support assistant."},
                 {"role": "user", "content": prompt}
