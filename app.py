@@ -28,7 +28,7 @@ def chat_with_gpt(user_message, history_text=""):
         Bot:
         """
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+           model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
             messages=[
                 {"role": "system", "content": "You are an empathetic mental health support assistant."},
                 {"role": "user", "content": prompt}
